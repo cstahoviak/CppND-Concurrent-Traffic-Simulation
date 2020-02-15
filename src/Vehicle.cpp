@@ -4,6 +4,12 @@
 #include "Intersection.h"
 #include "Vehicle.h"
 
+/* TASK L1.2:
+* Start a thread with the member function drive() and he object "this" as the
+* launch parameters. Also, add the created thread to the _thread vector of the
+* TrafficObject parent class."
+*/
+
 Vehicle::Vehicle()
 {
     _currStreet = nullptr;
@@ -24,8 +30,8 @@ void Vehicle::setCurrentDestination(std::shared_ptr<Intersection> destination)
 
 void Vehicle::simulate()
 {
-    // launch drive function in a thread
-    threads.emplace_back(std::thread(&Vehicle::drive, this));
+    // TASK L1.2: launch drive function in a thread
+    _threads.emplace_back(std::thread(&Vehicle::drive, this));
 }
 
 // virtual function which is executed in a thread
@@ -38,7 +44,7 @@ void Vehicle::drive()
 
     // initalize variables
     bool hasEnteredIntersection = false;
-    double cycleDuration = 1; // duration of a single simulation cycle in ms
+    // double cycleDuration = 1; // duration of a single simulation cycle in ms
     std::chrono::time_point<std::chrono::system_clock> lastUpdate;
 
     // init stop watch
@@ -50,7 +56,7 @@ void Vehicle::drive()
 
         // compute time difference to stop watch
         long timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
-        if (timeSinceLastUpdate >= cycleDuration)
+        if (timeSinceLastUpdate >= _cycleDuration)
         {
             // update position with a constant velocity motion model
             _posStreet += _speed * timeSinceLastUpdate / 1000;

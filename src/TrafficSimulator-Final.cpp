@@ -118,6 +118,12 @@ int main()
     std::vector<std::shared_ptr<Intersection>> intersections;
     std::vector<std::shared_ptr<Vehicle>> vehicles;
     std::string backgroundImg;
+
+    /* TASK L1.3:
+    * Vary the number of simulated vehicles and use top or htop in the terminal to
+    * observe the number of threads used by the simulation.
+    */
+    // NOTE: cannot be larger than max(nStreets, nIntersections)
     int nVehicles = 6;
     createTrafficObjects_Paris(streets, intersections, vehicles, backgroundImg, nVehicles);
 
@@ -129,6 +135,7 @@ int main()
     });
 
     // simulate vehicles
+    // NOTE: each vehicle will run in its own thread
     std::for_each(vehicles.begin(), vehicles.end(), [](std::shared_ptr<Vehicle> &v) {
         v->simulate();
     });

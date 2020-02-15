@@ -3,6 +3,17 @@
 #include <chrono>
 #include "TrafficObject.h"
 
+/* NOTE:
+* "There will not be an instance of TrafficObject, but it will be used as a
+* virtual class. The Intersection, Street and Vehicle  will each be a "child
+* object" of TrafficObject."
+*/
+
+/* TASK L1.1:
+* Setup a "thread barrier" in the class destructor that ensures that all the
+* thread objects (Vehicles and ??) in the member vector _threads are joined.
+*/  
+
 // init static variable
 int TrafficObject::_idCnt = 0;
 
@@ -28,8 +39,8 @@ TrafficObject::TrafficObject()
 
 TrafficObject::~TrafficObject()
 {
-    // set up thread barrier before this object is destroyed
-    std::for_each(threads.begin(), threads.end(), [](std::thread &t) {
+    // TASK L1.1: set up thread barrier before this object is destroyed
+    std::for_each(_threads.begin(), _threads.end(), [](std::thread &t) {
         t.join();
     });
 }
