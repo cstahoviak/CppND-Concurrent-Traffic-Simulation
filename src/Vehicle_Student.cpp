@@ -4,12 +4,6 @@
 #include "Intersection.h"
 #include "Vehicle.h"
 
-/* TASK L1.2:
-* Start a thread with the member function drive() and he object "this" as the
-* launch parameters. Also, add the created thread to the _thread vector of the
-* TrafficObject parent class."
-*/
-
 Vehicle::Vehicle()
 {
     _currStreet = nullptr;
@@ -30,21 +24,19 @@ void Vehicle::setCurrentDestination(std::shared_ptr<Intersection> destination)
 
 void Vehicle::simulate()
 {
-    // TASK L1.2: launch drive function in a thread
-    _threads.emplace_back(std::thread(&Vehicle::drive, this));
+    // Task L1.2 : Start a thread with the member function „drive“ and the object „this“ as the launch parameters. 
+    // Also, add the created thread into the _thread vector of the parent class. 
 }
 
 // virtual function which is executed in a thread
 void Vehicle::drive()
 {
     // print id of the current thread
-    std::unique_lock<std::mutex> lck(_mtx);
     std::cout << "Vehicle #" << _id << "::drive: thread id = " << std::this_thread::get_id() << std::endl;
-    lck.unlock();
 
     // initalize variables
     bool hasEnteredIntersection = false;
-    // double cycleDuration = 1; // duration of a single simulation cycle in ms
+    double cycleDuration = 1; // duration of a single simulation cycle in ms
     std::chrono::time_point<std::chrono::system_clock> lastUpdate;
 
     // init stop watch
@@ -56,7 +48,7 @@ void Vehicle::drive()
 
         // compute time difference to stop watch
         long timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
-        if (timeSinceLastUpdate >= _cycleDuration)
+        if (timeSinceLastUpdate >= cycleDuration)
         {
             // update position with a constant velocity motion model
             _posStreet += _speed * timeSinceLastUpdate / 1000;
@@ -82,12 +74,6 @@ void Vehicle::drive()
             // check wether halting position in front of destination has been reached
             if (completion >= 0.9 && !hasEnteredIntersection)
             {
-                // request entry to the current intersection (using async)
-                auto ftrEntryGranted = std::async(&Intersection::addVehicleToQueue, _currDestination, get_shared_this());
-
-                // wait until entry has been granted
-                ftrEntryGranted.get();
-
                 // slow down and set intersection flag
                 _speed /= 10.0;
                 hasEnteredIntersection = true;
@@ -115,9 +101,6 @@ void Vehicle::drive()
                 
                 // pick the one intersection at which the vehicle is currently not
                 std::shared_ptr<Intersection> nextIntersection = nextStreet->getInIntersection()->getID() == _currDestination->getID() ? nextStreet->getOutIntersection() : nextStreet->getInIntersection(); 
-
-                // send signal to intersection that vehicle has left the intersection
-                _currDestination->vehicleHasLeft(get_shared_this());
 
                 // assign new street and destination
                 this->setCurrentDestination(nextIntersection);

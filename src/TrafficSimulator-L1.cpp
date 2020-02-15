@@ -7,51 +7,8 @@
 #include "Intersection.h"
 #include "Graphics.h"
 
-
-// Paris
-void createTrafficObjects_Paris(std::vector<std::shared_ptr<Street>> &streets, std::vector<std::shared_ptr<Intersection>> &intersections, std::vector<std::shared_ptr<Vehicle>> &vehicles, std::string &filename, int nVehicles)
-{
-    // assign filename of corresponding city map
-    filename = "../data/paris.jpg";
-
-    // init traffic objects
-    int nIntersections = 9;
-    for (size_t ni = 0; ni < nIntersections; ni++)
-    {
-        intersections.push_back(std::make_shared<Intersection>());
-    }
-
-    // position intersections in pixel coordinates (counter-clockwise)
-    intersections.at(0)->setPosition(385, 270);
-    intersections.at(1)->setPosition(1240, 80);
-    intersections.at(2)->setPosition(1625, 75);
-    intersections.at(3)->setPosition(2110, 75);
-    intersections.at(4)->setPosition(2840, 175);
-    intersections.at(5)->setPosition(3070, 680);
-    intersections.at(6)->setPosition(2800, 1400);
-    intersections.at(7)->setPosition(400, 1100);
-    intersections.at(8)->setPosition(1700, 900); // central plaza
-
-    // create streets and connect traffic objects
-    int nStreets = 8;
-    for (size_t ns = 0; ns < nStreets; ns++)
-    {
-        streets.push_back(std::make_shared<Street>());
-        streets.at(ns)->setInIntersection(intersections.at(ns));
-        streets.at(ns)->setOutIntersection(intersections.at(8));
-    }
-
-    // add vehicles to streets
-    for (size_t nv = 0; nv < nVehicles; nv++)
-    {
-        vehicles.push_back(std::make_shared<Vehicle>());
-        vehicles.at(nv)->setCurrentStreet(streets.at(nv));
-        vehicles.at(nv)->setCurrentDestination(intersections.at(8));
-    }
-}
-
 // NYC
-void createTrafficObjects_NYC(std::vector<std::shared_ptr<Street>> &streets, std::vector<std::shared_ptr<Intersection>> &intersections, std::vector<std::shared_ptr<Vehicle>> &vehicles, std::string &filename, int nVehicles)
+void createTrafficObjects(std::vector<std::shared_ptr<Street>> &streets, std::vector<std::shared_ptr<Intersection>> &intersections, std::vector<std::shared_ptr<Vehicle>> &vehicles, std::string &filename, int nVehicles)
 {
     // assign filename of corresponding city map
     filename = "../data/nyc.jpg";
@@ -118,30 +75,21 @@ int main()
     std::vector<std::shared_ptr<Intersection>> intersections;
     std::vector<std::shared_ptr<Vehicle>> vehicles;
     std::string backgroundImg;
-
-    /* TASK L1.3:
-    * Vary the number of simulated vehicles and use top or htop in the terminal to
-    * observe the number of threads used by the simulation.
-    */
-    // NOTE: cannot be larger than max(nStreets, nIntersections)
-    int nVehicles = 6;
-    createTrafficObjects_Paris(streets, intersections, vehicles, backgroundImg, nVehicles);
+  
+    // Task L1.3 : Vary the number of simulated vehicles and use the top function on the terminal or 
+    // the task manager of your system to observe the number of threads used by the simulation.   
+    int nVehicles = 4;
+    createTrafficObjects(streets, intersections, vehicles, backgroundImg, nVehicles);
 
     /* PART 2 : simulate traffic objects */
 
-    // simulate intersection
-    std::for_each(intersections.begin(), intersections.end(), [](std::shared_ptr<Intersection> &i) {
-        i->simulate();
-    });
-
     // simulate vehicles
-    // NOTE: each vehicle will run in its own thread
     std::for_each(vehicles.begin(), vehicles.end(), [](std::shared_ptr<Vehicle> &v) {
         v->simulate();
     });
 
     /* PART 3 : Launch visualization */
-
+    
     // add all objects into common vector
     std::vector<std::shared_ptr<TrafficObject>> trafficObjects;
     std::for_each(intersections.begin(), intersections.end(), [&trafficObjects](std::shared_ptr<Intersection> &intersection) {
